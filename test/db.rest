@@ -1,0 +1,25 @@
+// instalar extension sc llamada api rest
+
+
+//Generated repo from id
+curl http://localhost:3000/api/creaRepositorio
+
+###
+//write repo from id
+curl -X POST http://localhost:3000/api/data/a6bee6f7-4068-4e0d-a1c3-36f802da5b9 -H "Content-Type: application/json" -d '{"name": "Juan", "age": 31}'
+
+// load repo from id
+###
+curl  http://localhost:3000/api/data/a6bee6f7-4068-4e0d-a1c3-36f802da5b39 
+
+
+
+
+// Mensaje error id no encontrado en fs 
+###
+//write repo from id
+curl -X POST http://localhost:3000/api/data/a6bee6f7-4068-4e0d-a1c3-36f802da5b -H "Content-Type: application/json" -d '{"name": "Juan", "age": 31}'
+
+// load repo from id
+###
+curl  http://localhost:3000/api/data/a6bee6f7-4068-4e0d-a1c3-36f802da5b3
