@@ -5,21 +5,23 @@
 curl http://localhost:3000/api/creaRepositorio
 
 ###
-//write repo from id
-curl -X POST http://localhost:3000/api/data/a6bee6f7-4068-4e0d-a1c3-36f802da5b9 -H "Content-Type: application/json" -d '{"name": "Juan", "age": 31}'
+//add new  item
+curl -X POST http://localhost:3000/api/item/c344b814-e61f-4195-985b-d4ed28beb5bb -H "Content-Type: application/json" -d '{"name": "Item 1", "description": "This is item 1"}'
 
-// load repo from id
 ###
-curl  http://localhost:3000/api/data/a6bee6f7-4068-4e0d-a1c3-36f802da5b39 
 
-
-
-
-// Mensaje error id no encontrado en fs 
+// get all items
+curl http://localhost:3000/api/items/c344b814-e61f-4195-985b-d4ed28beb5bb
 ###
-//write repo from id
-curl -X POST http://localhost:3000/api/data/a6bee6f7-4068-4e0d-a1c3-36f802da5b -H "Content-Type: application/json" -d '{"name": "Juan", "age": 31}'
 
-// load repo from id
+//get all one item 
+curl http://localhost:3000/api/item/c344b814-e61f-4195-985b-d4ed28beb5bb/067737e5-4c8d-4e1d-9874-bd71a4312bb6
 ###
-curl  http://localhost:3000/api/data/a6bee6f7-4068-4e0d-a1c3-36f802da5b3
+
+// find and update item 
+curl -X PUT http://localhost:3000/api/item/c344b814-e61f-4195-985b-d4ed28beb5bb/067737e5-4c8d-4e1d-9874-bd71a4312bb6 -H "Content-Type: application/json" -d '{"name": "Updated Item 1"}'
+###
+
+// find and delete one item
+curl -X DELETE http://localhost:3000/api/item/c344b814-e61f-4195-985b-d4ed28beb5bb/067737e5-4c8d-4e1d-9874-bd71a4312bb6 
+

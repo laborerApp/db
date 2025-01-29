@@ -1,3 +1,4 @@
+const { Console } = require('console');
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
@@ -5,82 +6,107 @@ const { v4: uuidv4 } = require('uuid');
 
 const app = express();
 const PORT = 3000;
+var DATA_FILE = null
 
 // Middleware para parsear JSON en las solicitudes
 app.use(express.json());
 
+function getPathData(Id) {
+
+    if (Id === null) {
+        // Validar que el archivo existe
+        return res.status(404).json({ error: 'id no encontrado. Primero debe crear el repositorio.' });
+    }
+    if (DATA_FILE === null) {
+        // Crear el directorio "data" si no existe
+        if (!fs.existsSync(path.join(__dirname, 'data'))) {
+            fs.mkdirSync(path.join(__dirname, 'data'));
+        }
+     return DATA_FILE = path.join(__dirname, 'data', `db_${Id}.json`);
+    }
+    else
+        return DATA_FILE;
+
+}
+
 // Función para crear un nuevo repositorio
 function creaRepositorio() {
-    const userId = uuidv4(); // Generar un UUID único
-    const userFilePath = path.join(__dirname, 'data', `usuario_${userId}.json`); // Ruta del archivo
+    const Id = uuidv4(); // Generar un UUID único
+    fs.writeFileSync(path.join(__dirname, 'data', `db_${Id}.json`), JSON.stringify([]));
+    return Id; // Devolver el UUID generado
+}
+// funcion para guardar 
+function saveData(Id, data) {
+    fs.writeFileSync(getPathData(Id), JSON.stringify(data, null, 2));
+}
 
-    // Crear el directorio "data" si no existe
-    if (!fs.existsSync(path.join(__dirname, 'data'))) {
-        fs.mkdirSync(path.join(__dirname, 'data'));
-    }
-
-    // Crear un archivo JSON vacío
-    fs.writeFileSync(userFilePath, JSON.stringify({}), 'utf8');
-
-    return userId; // Devolver el UUID generado
+// Cargar datos desde el archivo JSON
+function loadData(Id) {
+    return JSON.parse(fs.readFileSync(getPathData(Id), 'utf8'));
 }
 
 // Ruta GET para crear un nuevo repositorio
 app.get('/api/creaRepositorio', (req, res) => {
-    const userId = creaRepositorio(); // Crear un nuevo repositorio
-    res.json({ userId, message: 'Repositorio creado correctamente' });
+    res.json({ id: creaRepositorio(), message: 'Repositorio creado correctamente' });
 });
 
-// Ruta POST para actualizar los datos de un usuario
-app.post('/api/data/:userId', (req, res) => {
-    const userId = req.params.userId; // Obtener el UUID del usuario desde la URL
-    const userFilePath = path.join(__dirname, 'data', `usuario_${userId}.json`); // Ruta del archivo
+// Ruta POST New item
+app.post('/api/item/:Id', (req, res) => {
+    const data = loadData(req.params.Id);
 
-    // Validar que el archivo existe
-    if (!fs.existsSync(userFilePath)) {
-        return res.status(404).json({ error: 'Usuario no encontrado. Primero debe crear el repositorio.' });
-    }
+    const newItem = {
+        id: uuidv4(),
+        ...req.body
+    };
+    data.push(newItem);
+    saveData(req.params.Id, data);
+    res.status(201).json(newItem);
 
-    const newData = req.body; // Datos enviados en el cuerpo de la solicitud
-
-    // Leer el archivo actual y actualizar los datos
-    fs.readFile(userFilePath, 'utf8', (err, data) => {
-        if (err) {
-            return res.status(500).json({ error: 'Error al leer el archivo' });
-        }
-
-        const userData = JSON.parse(data); // Datos actuales del usuario
-        const updatedData = { ...userData, ...newData }; // Fusionar datos actuales con los nuevos
-
-        // Escribir los datos actualizados en el archivo
-        fs.writeFile(userFilePath, JSON.stringify(updatedData, null, 2), 'utf8', (err) => {
-            if (err) {
-                return res.status(500).json({ error: 'Error al escribir en el archivo' });
-            }
-            res.json({ userId, message: 'Datos actualizados correctamente', data: updatedData });
-        });
-    });
 });
 
-// Ruta GET para leer el contenido del archivo JSON de un usuario
-app.get('/api/data/:userId', (req, res) => {
-    const userId = req.params.userId; // Obtener el userId desde la URL
-    const userFilePath = path.join(__dirname, 'data', `usuario_${userId}.json`); // Ruta del archivo
-
-    // Verificar si el archivo existe
-    if (!fs.existsSync(userFilePath)) {
-        return res.status(404).json({ error: 'Usuario no encontrado' });
+// Ruta GET id Items
+app.get('/api/item/:Id/:IdItem', (req, res) => {
+    const data = loadData(req.params.Id);
+    const item = data.find(i => i.id === req.params.IdItem);
+    if (item) {
+        res.json(item);
+    } else {
+        res.status(404).json({ message: 'Item not found' });
     }
+});
 
-    // Leer el archivo JSON
-    fs.readFile(userFilePath, 'utf8', (err, data) => {
-        if (err) {
-            return res.status(500).json({ error: 'Error al leer el archivo' });
-        }
+// Ruta GET all Items
+app.get('/api/items/:Id', (req, res) => {
+    const data = loadData(req.params.Id);
+    res.json(data);
+});
 
-        const userData = JSON.parse(data); // Parsear el contenido del archivo
-        res.json({ userId, data: userData }); // Devolver el contenido
-    });
+// Actualizar un registro por ID
+app.put('/api/item/:Id/:IdItem', (req, res) => {
+    const data = loadData(req.params.Id);
+    const index = data.findIndex(i => i.id === req.params.IdItem);
+    console.log(index);
+    if (index !== -1) {
+        data[index] = { ...data[index], ...req.body };
+        console.log(data[index]);
+        saveData(req.params.Id, data);
+        res.json(data[index]);
+    } else {
+        res.status(404).json({ message: 'Item not found' });
+    }
+});
+
+// Eliminar un registro por ID
+app.delete('/api/item/:Id/:IdItem', (req, res) => {
+    const data = loadData(req.params.Id);
+    const index = data.findIndex(i => i.id === req.params.IdItem);
+    if (index !== -1) {
+        const deletedItem = data.splice(index, 1);
+        saveData(req.params.Id, data);
+        res.json(deletedItem);
+    } else {
+        res.status(404).json({ message: 'Item not found' });
+    }
 });
 
 // Iniciar el servidor
