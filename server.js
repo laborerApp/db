@@ -77,22 +77,30 @@ app.get('/api/item/:Id/:IdItem', (req, res) => {
 
 // Ruta GET all Items
 app.get('/api/items/:Id', (req, res) => {
-    const data = loadData(req.params.Id);
-    res.json(data);
+    try {
+        const data = loadData(req.params.Id);
+        res.json(data);
+    } catch (error) {
+        res.status(500).json({ message: 'Error loading data' });
+    }
 });
 
 // Actualizar un registro por ID
 app.put('/api/item/:Id/:IdItem', (req, res) => {
-    const data = loadData(req.params.Id);
-    const index = data.findIndex(i => i.id === req.params.IdItem);
-    console.log(index);
-    if (index !== -1) {
-        data[index] = { ...data[index], ...req.body };
-        console.log(data[index]);
-        saveData(req.params.Id, data);
-        res.json(data[index]);
-    } else {
-        res.status(404).json({ message: 'Item not found' });
+    try {
+        const data = loadData(req.params.Id);
+        const index = data.findIndex(i => i.id === req.params.IdItem);
+        console.log(index);
+        if (index !== -1) {
+            data[index] = { ...data[index], ...req.body };
+            console.log(data[index]);
+            saveData(req.params.Id, data);
+            res.json(data[index]);
+        } else {
+            res.status(404).json({ message: 'Item not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Error updating data' });
     }
 });
 
@@ -110,6 +118,11 @@ app.delete('/api/item/:Id/:IdItem', (req, res) => {
 });
 
 // Iniciar el servidor
-app.listen(PORT, () => {
-    console.log(`Servidor corriendo en http://localhost:${PORT}`);
+app.listen(PORT, (error) => {
+    if (error) {
+        console.error('Error al iniciar el servidor:', error);
+        process.exit(1); // Salir del proceso en caso de error
+    } else {
+        console.log(`Servidor corriendo en http://localhost:${PORT}`);
+    }
 });

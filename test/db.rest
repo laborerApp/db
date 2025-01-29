@@ -15,13 +15,13 @@ curl http://localhost:3000/api/items/c344b814-e61f-4195-985b-d4ed28beb5bb
 ###
 
 //get all one item 
-curl http://localhost:3000/api/item/c344b814-e61f-4195-985b-d4ed28beb5bb/067737e5-4c8d-4e1d-9874-bd71a4312bb6
+curl http://localhost:3000/api/item/c344b814-e61f-4195-985b-d4ed28beb5bb/06684e07-b9c4-4c5e-8037-22a2ba43185f
 ###
 
 // find and update item 
-curl -X PUT http://localhost:3000/api/item/c344b814-e61f-4195-985b-d4ed28beb5bb/067737e5-4c8d-4e1d-9874-bd71a4312bb6 -H "Content-Type: application/json" -d '{"name": "Updated Item 1"}'
+curl -X PUT http://localhost:3000/api/item/c344b814-e61f-4195-985b-d4ed28beb5bb/06684e07-b9c4-4c5e-8037-22a2ba43185f -H "Content-Type: application/json" -d '{"name": "update Item 1"}'
 ###
 
 // find and delete one item
-curl -X DELETE http://localhost:3000/api/item/c344b814-e61f-4195-985b-d4ed28beb5bb/067737e5-4c8d-4e1d-9874-bd71a4312bb6 
+curl -X DELETE http://localhost:3000/api/item/c344b814-e61f-4195-985b-d4ed28beb5bb/06684e07-b9c4-4c5e-8037-22a2ba43185f
 
